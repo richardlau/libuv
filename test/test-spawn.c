@@ -215,6 +215,82 @@ TEST_IMPL(spawn_fails_check_for_waitpid_cleanup) {
 #endif
 
 
+#ifdef _WIN32
+BOOL is_elevated() {
+  DWORD cb_size;
+  BOOL elevated;
+  TOKEN_ELEVATION elevation_token;
+  DWORD elevation_token_size;
+  HANDLE h_token;
+
+  elevated = FALSE;
+  h_token = NULL;
+  if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &h_token)) {
+    cb_size = sizeof(TOKEN_ELEVATION);
+    elevation_token_size = sizeof(elevation_token);
+    if (GetTokenInformation(h_token, TokenElevation, &elevation_token,
+                            elevation_token_size, &cb_size)) {
+      elevated = elevation_token.TokenIsElevated;
+    }
+  }
+  if (h_token) {
+    CloseHandle(h_token);
+  }
+  return elevated;
+}
+
+
+TEST_IMPL(spawn_requires_elevation) {
+  int r;
+  uv_fs_t req;
+  char path[1024];
+
+  if (is_elevated()) {
+    RETURN_SKIP("Process is already elevated");
+  }
+
+  /* Find helper .exe -- Assumed to be in same location as test runner */
+  r = uv_exepath(exepath, &exepath_size);
+  ASSERT(r == 0);
+  exepath[exepath_size] = '\0';
+  snprintf(path, sizeof(path), "%s\\..\\require-elevation.exe", exepath);
+  r = uv_fs_realpath(uv_default_loop(), &req, path, NULL);
+  ASSERT(r == 0);
+
+  /*
+   * Windows XP and Server 2003 don't support GetFinalPathNameByHandleW()
+   */
+  if (req.result == UV_ENOSYS) {
+    uv_fs_req_cleanup(&req);
+    RETURN_SKIP("realpath is not supported on Windows XP");
+  }
+
+  ASSERT(req.ptr != NULL);
+
+  init_process_options("", fail_cb);
+  options.file = options.args[0] = req.ptr;
+
+  printf("Launching %s\n", (char*) req.ptr);
+  r = uv_spawn(uv_default_loop(), &process, &options);
+  if (r != 0) {
+    printf("r == %s - %s\n", uv_err_name(r), uv_strerror(r));
+  }
+
+  ASSERT(r == UV_EACCES);
+  r = uv_is_active((uv_handle_t*) &process);
+  ASSERT(r == 0);
+  uv_close((uv_handle_t*) &process, NULL);
+  r = uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+  ASSERT(r == 0);
+
+  uv_fs_req_cleanup(&req);
+
+  MAKE_VALGRIND_HAPPY();
+  return 0;
+}
+#endif
+
+
 TEST_IMPL(spawn_exit_code) {
   int r;
 

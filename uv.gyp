@@ -311,7 +311,6 @@
         }],
       ]
     },
-
     {
       'target_name': 'run-tests',
       'type': 'executable',
@@ -569,5 +568,28 @@
         },
       },
     },
-  ]
+  ],
+  'conditions': [
+    ['OS=="win"', {
+      'targets': [
+        {
+          'target_name': 'require-elevation',
+          'type': 'executable',
+          'sources': [
+            'test/require-elevation.c'
+          ],
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'SubSystem': 1, # /subsystem:console
+              'UACExecutionLevel': 2, # requireAdministrator
+              'UACUIAccess': 'false',
+            },
+            'VCManifestTool': {
+              'EmbedManifest': 'true',
+            }
+          },
+        }
+      ],
+    }],
+  ],
 }
