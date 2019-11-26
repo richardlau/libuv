@@ -247,9 +247,8 @@ int uv_interface_addresses(uv_interface_address_t** addresses, int* count) {
     inet6 = (p->ifr_addr.sa_family == AF_INET6);
 
     memcpy(flg.ifr_name, p->ifr_name, sizeof(flg.ifr_name));
-    if (ioctl(sockfd, SIOCGIFFLAGS, &flg) == -1) {
+    if (ioctl(sockfd, SIOCGIFFLAGS, &flg) == -1)
       goto syserror;
-    }
 
     if (!(flg.ifr_flags & IFF_UP && flg.ifr_flags & IFF_RUNNING))
       continue;
@@ -271,19 +270,16 @@ int uv_interface_addresses(uv_interface_address_t** addresses, int* count) {
       r = uv__strscpy(if6.ifr_name, p->ifr_name, sizeof(if6.ifr_name));
       if (r == UV_E2BIG)
         goto cleanup;
-      else
-        r = 0;
+      r = 0;
       memcpy(&if6.ifr_Addr, &p->ifr_addr, sizeof(if6.ifr_Addr));
-      if (ioctl(sock6fd, SIOCGIFNETMASK6, &if6) == -1) {
+      if (ioctl(sock6fd, SIOCGIFNETMASK6, &if6) == -1)
         goto syserror;
-      }
       address->netmask.netmask6 = *((struct sockaddr_in6*) &if6.ifr_Addr);
       /* Explicitly set family as the ioctl call appears to return it as 0. */
       address->netmask.netmask6.sin6_family = AF_INET6;
     } else {
-      if (ioctl(sockfd, SIOCGIFNETMASK, p) == -1) {
+      if (ioctl(sockfd, SIOCGIFNETMASK, p) == -1)
         goto syserror;
-      }
       address->netmask.netmask4 = *((struct sockaddr_in*) &p->ifr_addr);
       /* Explicitly set family as the ioctl call appears to return it as 0. */
       address->netmask.netmask4.sin_family = AF_INET;
