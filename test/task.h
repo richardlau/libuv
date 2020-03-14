@@ -109,6 +109,42 @@ typedef enum {
   }                                                       \
  } while (0)
 
+#define ASSERT_BASE(a, operator, b, conv)                    \
+ do {                                                        \
+  if (!(a operator b)) {                                     \
+    fprintf(stderr,                                          \
+            "Assertion failed in %s on line %d: `%s %s %s` " \
+            "(%"#conv" %s %"#conv")\n",                      \
+            __FILE__,                                        \
+            __LINE__,                                        \
+            #a,                                              \
+            #operator,                                       \
+            #b,                                              \
+            a,                                               \
+            #operator,                                       \
+            b);                                              \
+    abort();                                                 \
+  }                                                          \
+ } while (0)
+
+#define ASSERT_INT(a, operator, b) \
+  ASSERT_BASE(a, operator, b, i)
+
+#define ASSERT_UINT(a, operator, b) \
+  ASSERT_BASE(a, operator, b, u)
+
+#define ASSERT_LONG_INT(a, operator, b) \
+  ASSERT_BASE(a, operator, b, li)
+
+#define ASSERT_LONG_UINT(a, operator, b) \
+  ASSERT_BASE(a, operator, b, lu)
+
+#define ASSERT_LONG_LONG_INT(a, operator, b) \
+  ASSERT_BASE(a, operator, b, lli)
+
+#define ASSERT_LONG_LONG_UINT(a, operator, b) \
+  ASSERT_BASE(a, operator, b, llu)
+
 /* This macro cleans up the main loop. This is used to avoid valgrind
  * warnings about memory being "leaked" by the main event loop.
  */
