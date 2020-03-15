@@ -109,9 +109,9 @@ typedef enum {
   }                                                       \
  } while (0)
 
-#define ASSERT_BASE(a, operator, b, conv)                    \
+#define ASSERT_BASE(expr, a, operator, b, conv)              \
  do {                                                        \
-  if (!(a operator b)) {                                     \
+  if (!(expr)) {                                             \
     fprintf(stderr,                                          \
             "Assertion failed in %s on line %d: `%s %s %s` " \
             "(%"#conv" %s %"#conv")\n",                      \
@@ -127,11 +127,61 @@ typedef enum {
   }                                                          \
  } while (0)
 
+#define ASSERT_BASE_LEN(expr, a, operator, b, conv, len)     \
+ do {                                                        \
+  if (!(expr)) {                                             \
+    fprintf(stderr,                                          \
+            "Assertion failed in %s on line %d: `%s %s %s` " \
+            "(%.*"#conv" %s %.*"#conv")\n",                  \
+            __FILE__,                                        \
+            __LINE__,                                        \
+            #a,                                              \
+            #operator,                                       \
+            #b,                                              \
+            len,                                             \
+            a,                                               \
+            #operator,                                       \
+            len,                                             \
+            b);                                              \
+    abort();                                                 \
+  }                                                          \
+ } while (0)
+
+#define ASSERT_BASE_HEX(expr, a, operator, b, size)            \
+ do {                                                          \
+  if (!(expr)) {                                               \
+    int i;                                                     \
+    unsigned char* a_ = (unsigned char*)a;                     \
+    unsigned char* b_ = (unsigned char*)b;                     \
+    fprintf(stderr,                                            \
+            "Assertion failed in %s on line %d: `%s %s %s` (", \
+            __FILE__,                                          \
+            __LINE__,                                          \
+            #a,                                                \
+            #operator,                                         \
+            #b);                                               \
+    for (i = 0; i < size; ++i) {                               \
+      if (i > 0) fprintf(stderr, ":");                         \
+      fprintf(stderr, "%02X", a_[i]);                          \
+    }                                                          \
+    fprintf(stderr, " %s ", #operator);                        \
+    for (i = 0; i < size; ++i) {                               \
+      if (i > 0) fprintf(stderr, ":");                         \
+      fprintf(stderr, "%02X", b_[i]);                          \
+    }                                                          \
+    fprintf(stderr, ")\n");                                    \
+    abort();                                                   \
+  }                                                            \
+ } while (0)
+
+#define ASSERT_INT_BASE(a, operator, b, conv) \
+  ASSERT_BASE(a operator b, a, operator, b, conv)
+
 #define ASSERT_INT(a, operator, b) \
-  ASSERT_BASE(a, operator, b, i)
+  ASSERT_INT_BASE(a, operator, b, i)
 
 #define ASSERT_UINT(a, operator, b) \
-  ASSERT_BASE(a, operator, b, u)
+  ASSERT_INT_BASE(a, operator, b, u)
 
 #define ASSERT_LONG_INT(a, operator, b) \
   ASSERT_BASE(a, operator, b, li)
@@ -144,6 +194,24 @@ typedef enum {
 
 #define ASSERT_LONG_LONG_UINT(a, operator, b) \
   ASSERT_BASE(a, operator, b, llu)
+
+#define ASSERT_STR_EQ(a, b) \
+  ASSERT_BASE(strcmp(a, b) == 0, a, ==, b, s)
+
+#define ASSERT_STR_NEQ(a, b) \
+  ASSERT_BASE(strcmp(a, b) != 0, a, !=, b, s)
+
+#define ASSERT_MEM_EQ(a, b, size) \
+  ASSERT_BASE_LEN(memcmp(a, b, size) == 0, a, ==, b, s, size)
+
+#define ASSERT_MEM_NEQ(a, b, size) \
+  ASSERT_BASE_LEN(memcmp(a, b, size) != 0, a, !=, b, s, size)
+
+#define ASSERT_MEM_HEX_EQ(a, b, size) \
+  ASSERT_BASE_HEX(memcmp(a, b, size) == 0, a, ==, b, size)
+
+#define ASSERT_MEM_HEX_NEQ(a, b, size) \
+  ASSERT_BASE_HEX(memcmp(a, b, size) != 0, a, !=, b, size)
 
 /* This macro cleans up the main loop. This is used to avoid valgrind
  * warnings about memory being "leaked" by the main event loop.
