@@ -109,7 +109,7 @@ typedef enum {
   }                                                       \
  } while (0)
 
-#define ASSERT_BASE(expr, a, operator, b, conv)              \
+#define ASSERT_BASE(expr, a, operator, b, type, conv)        \
  do {                                                        \
   if (!(expr)) {                                             \
     fprintf(stderr,                                          \
@@ -120,9 +120,9 @@ typedef enum {
             #a,                                              \
             #operator,                                       \
             #b,                                              \
-            a,                                               \
+            (type)a,                                         \
             #operator,                                       \
-            b);                                              \
+            (type)b);                                        \
     abort();                                                 \
   }                                                          \
  } while (0)
@@ -138,10 +138,10 @@ typedef enum {
             #a,                                              \
             #operator,                                       \
             #b,                                              \
-            len,                                             \
+            (int)len,                                        \
             a,                                               \
             #operator,                                       \
-            len,                                             \
+            (int)len,                                        \
             b);                                              \
     abort();                                                 \
   }                                                          \
@@ -174,43 +174,67 @@ typedef enum {
   }                                                            \
  } while (0)
 
-#define ASSERT_INT_BASE(a, operator, b, conv) \
-  ASSERT_BASE(a operator b, a, operator, b, conv)
+#define ASSERT_INT_BASE(a, operator, b, type, conv) \
+  ASSERT_BASE(a operator b, a, operator, b, type, conv)
 
-#define ASSERT_INT(a, operator, b) \
-  ASSERT_INT_BASE(a, operator, b, i)
+#define ASSERT_INT_EQ(a, b) ASSERT_INT_BASE(a, ==, b, int, i)
+#define ASSERT_INT_GE(a, b) ASSERT_INT_BASE(a, >=, b, int, i)
+#define ASSERT_INT_GT(a, b) ASSERT_INT_BASE(a, >, b, int, i)
+#define ASSERT_INT_LE(a, b) ASSERT_INT_BASE(a, <=, b, int, i)
+#define ASSERT_INT_LT(a, b) ASSERT_INT_BASE(a, <, b, int, i)
+#define ASSERT_INT_NE(a, b) ASSERT_INT_BASE(a, !=, b, int, i)
 
-#define ASSERT_UINT(a, operator, b) \
-  ASSERT_INT_BASE(a, operator, b, u)
+#define ASSERT_UINT_EQ(a, b) ASSERT_INT_BASE(a, ==, b, unsigned int, u)
+#define ASSERT_UINT_GE(a, b) ASSERT_INT_BASE(a, >=, b, unsigned int, u)
+#define ASSERT_UINT_GT(a, b) ASSERT_INT_BASE(a, >, b, unsigned int, u)
+#define ASSERT_UINT_LE(a, b) ASSERT_INT_BASE(a, <=, b, unsigned int, u)
+#define ASSERT_UINT_LT(a, b) ASSERT_INT_BASE(a, <, b, unsigned int, u)
+#define ASSERT_UINT_NE(a, b) ASSERT_INT_BASE(a, !=, b, unsigned int, u)
 
-#define ASSERT_LONG_INT(a, operator, b) \
-  ASSERT_BASE(a, operator, b, li)
+#define ASSERT_LONG_INT_EQ(a, b) ASSERT_INT_BASE(a, ==, b, long int, li)
+#define ASSERT_LONG_INT_GE(a, b) ASSERT_INT_BASE(a, >=, b, long int, li)
+#define ASSERT_LONG_INT_GT(a, b) ASSERT_INT_BASE(a, >, b, long int, li)
+#define ASSERT_LONG_INT_LE(a, b) ASSERT_INT_BASE(a, <=, b, long int, li)
+#define ASSERT_LONG_INT_LT(a, b) ASSERT_INT_BASE(a, <, b, long int, li)
+#define ASSERT_LONG_INT_NE(a, b) ASSERT_INT_BASE(a, !=, b, long int, li)
 
-#define ASSERT_LONG_UINT(a, operator, b) \
-  ASSERT_BASE(a, operator, b, lu)
+#define ASSERT_LONG_UINT_EQ(a, b) ASSERT_INT_BASE(a, ==, b, unsigned long int, lu)
+#define ASSERT_LONG_UINT_GE(a, b) ASSERT_INT_BASE(a, >=, b, unsigned long int, lu)
+#define ASSERT_LONG_UINT_GT(a, b) ASSERT_INT_BASE(a, >, b, unsigned long int, lu)
+#define ASSERT_LONG_UINT_LE(a, b) ASSERT_INT_BASE(a, <=, b, unsigned long int, lu)
+#define ASSERT_LONG_UINT_LT(a, b) ASSERT_INT_BASE(a, <, b, unsigned long int, lu)
+#define ASSERT_LONG_UINT_NE(a, b) ASSERT_INT_BASE(a, !=, b, unsigned long int, lu)
 
-#define ASSERT_LONG_LONG_INT(a, operator, b) \
-  ASSERT_BASE(a, operator, b, lli)
+#define ASSERT_LONG_LONG_INT_EQ(a, b) ASSERT_INT_BASE(a, ==, b, long long int, lli)
+#define ASSERT_LONG_LONG_INT_GE(a, b) ASSERT_INT_BASE(a, >=, b, long long int, lli)
+#define ASSERT_LONG_LONG_INT_GT(a, b) ASSERT_INT_BASE(a, >, b, long long int, lli)
+#define ASSERT_LONG_LONG_INT_LE(a, b) ASSERT_INT_BASE(a, <=, b, long long int, lli)
+#define ASSERT_LONG_LONG_INT_LT(a, b) ASSERT_INT_BASE(a, <, b, long long int, lli)
+#define ASSERT_LONG_LONG_INT_NE(a, b) ASSERT_INT_BASE(a, !=, b, long long int, lli)
 
-#define ASSERT_LONG_LONG_UINT(a, operator, b) \
-  ASSERT_BASE(a, operator, b, llu)
+#define ASSERT_LONG_LONG_UINT_EQ(a, b) ASSERT_INT_BASE(a, ==, b, unsigned long long int, llu)
+#define ASSERT_LONG_LONG_UINT_GE(a, b) ASSERT_INT_BASE(a, >=, b, unsigned long long int, llu)
+#define ASSERT_LONG_LONG_UINT_GT(a, b) ASSERT_INT_BASE(a, >, b, unsigned long long int, llu)
+#define ASSERT_LONG_LONG_UINT_LE(a, b) ASSERT_INT_BASE(a, <=, b, unsigned long long int, llu)
+#define ASSERT_LONG_LONG_UINT_LT(a, b) ASSERT_INT_BASE(a, <, b, unsigned long long int, llu)
+#define ASSERT_LONG_LONG_UINT_NE(a, b) ASSERT_INT_BASE(a, !=, b, unsigned long long int, llu)
 
 #define ASSERT_STR_EQ(a, b) \
   ASSERT_BASE(strcmp(a, b) == 0, a, ==, b, s)
 
-#define ASSERT_STR_NEQ(a, b) \
+#define ASSERT_STR_NE(a, b) \
   ASSERT_BASE(strcmp(a, b) != 0, a, !=, b, s)
 
 #define ASSERT_MEM_EQ(a, b, size) \
   ASSERT_BASE_LEN(memcmp(a, b, size) == 0, a, ==, b, s, size)
 
-#define ASSERT_MEM_NEQ(a, b, size) \
+#define ASSERT_MEM_NE(a, b, size) \
   ASSERT_BASE_LEN(memcmp(a, b, size) != 0, a, !=, b, s, size)
 
 #define ASSERT_MEM_HEX_EQ(a, b, size) \
   ASSERT_BASE_HEX(memcmp(a, b, size) == 0, a, ==, b, size)
 
-#define ASSERT_MEM_HEX_NEQ(a, b, size) \
+#define ASSERT_MEM_HEX_NE(a, b, size) \
   ASSERT_BASE_HEX(memcmp(a, b, size) != 0, a, !=, b, size)
 
 /* This macro cleans up the main loop. This is used to avoid valgrind
