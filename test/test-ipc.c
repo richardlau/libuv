@@ -80,10 +80,10 @@ static void on_connection(uv_stream_t* server, int status) {
   if (!local_conn_accepted) {
     /* Accept the connection and close it.  Also and close the server. */
     ASSERT_EQ(status, 0);
-    ASSERT((uv_stream_t*)&tcp_server == server);
+    ASSERT_PTR_EQ(&tcp_server, server);
 
     conn = malloc(sizeof(*conn));
-    ASSERT(conn);
+    ASSERT_NOT_NULL(conn);
     r = uv_tcp_init(server->loop, conn);
     ASSERT_EQ(r, 0);
 
@@ -134,7 +134,7 @@ static void make_many_connections(void) {
 
   for (i = 0; i < CONN_COUNT; i++) {
     conn = malloc(sizeof(*conn));
-    ASSERT(conn);
+    ASSERT_NOT_NULL(conn);
 
     r = uv_tcp_init(uv_default_loop(), &conn->conn);
     ASSERT_EQ(r, 0);
@@ -183,7 +183,7 @@ static void on_read(uv_stream_t* handle,
   if (!tcp_server_listening) {
     ASSERT_EQ(1, uv_pipe_pending_count(pipe));
     ASSERT_GT(nread, 0);
-    ASSERT(buf->base);
+    ASSERT_NOT_NULL(buf->base);
     ASSERT_NE(pending, UV_UNKNOWN_HANDLE);
     read_cb_called++;
 
@@ -251,7 +251,7 @@ static void on_read_listen_after_bound_twice(uv_stream_t* handle,
   ASSERT_GT(uv_pipe_pending_count(pipe), 0);
   pending = uv_pipe_pending_type(pipe);
   ASSERT_GT(nread, 0);
-  ASSERT(buf->base);
+  ASSERT_NOT_NULL(buf->base);
   ASSERT_NE(pending, UV_UNKNOWN_HANDLE);
   read_cb_called++;
 
@@ -300,7 +300,7 @@ void spawn_helper(uv_pipe_t* channel,
 
   r = uv_pipe_init(uv_default_loop(), channel, 1);
   ASSERT_EQ(r, 0);
-  ASSERT(channel->ipc);
+  ASSERT_NE(channel->ipc, 0);
 
   exepath_size = sizeof(exepath);
   r = uv_exepath(exepath, &exepath_size);
@@ -332,7 +332,7 @@ void spawn_helper(uv_pipe_t* channel,
 
 static void on_tcp_write(uv_write_t* req, int status) {
   ASSERT_EQ(status, 0);
-  ASSERT(req->handle == (uv_stream_t*)&tcp_connection);
+  ASSERT_PTR_EQ(req->handle, &tcp_connection);
   tcp_write_cb_called++;
 }
 
@@ -348,7 +348,7 @@ static void on_read_alloc(uv_handle_t* handle,
 static void on_tcp_read(uv_stream_t* tcp, ssize_t nread, const uv_buf_t* buf) {
   ASSERT_GT(nread, 0);
   ASSERT_MEM_EQ("hello again\n", buf->base, nread);
-  ASSERT(tcp == (uv_stream_t*)&tcp_connection);
+  ASSERT_PTR_EQ(tcp, &tcp_connection);
   free(buf->base);
 
   tcp_read_cb_called++;
@@ -389,7 +389,7 @@ static void on_read_connection(uv_stream_t* handle,
   pending = uv_pipe_pending_type(pipe);
 
   ASSERT_GT(nread, 0);
-  ASSERT(buf->base);
+  ASSERT_NOT_NULL(buf->base);
   ASSERT_NE(pending, UV_UNKNOWN_HANDLE);
   read_cb_called++;
 
@@ -594,7 +594,7 @@ static void conn_notify_write_cb(uv_write_t* req, int status) {
 
 
 static void tcp_connection_write_cb(uv_write_t* req, int status) {
-  ASSERT((uv_handle_t*)&conn.conn == (uv_handle_t*)req->handle);
+  ASSERT_PTR_EQ(&conn.conn, req->handle);
   uv_close((uv_handle_t*)req->handle, close_cb);
   uv_close((uv_handle_t*)&channel, close_cb);
   uv_close((uv_handle_t*)&tcp_server, close_cb);
@@ -673,7 +673,7 @@ static void ipc_on_connection(uv_stream_t* server, int status) {
      * side know.
      */
     ASSERT_EQ(status, 0);
-    ASSERT((uv_stream_t*)&tcp_server == server);
+    ASSERT_PTR_EQ(&tcp_server, server);
 
     r = uv_tcp_init(server->loop, &conn.conn);
     ASSERT_EQ(r, 0);
@@ -699,10 +699,10 @@ static void ipc_on_connection_tcp_conn(uv_stream_t* server, int status) {
   uv_tcp_t* conn;
 
   ASSERT_EQ(status, 0);
-  ASSERT((uv_stream_t*)&tcp_server == server);
+  ASSERT_PTR_EQ(&tcp_server, server);
 
   conn = malloc(sizeof(*conn));
-  ASSERT(conn);
+  ASSERT_NOT_NULL(conn);
 
   r = uv_tcp_init(server->loop, conn);
   ASSERT_EQ(r, 0);
