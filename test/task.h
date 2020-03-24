@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #if defined(_MSC_VER) && _MSC_VER < 1600
 # include "uv/stdint-msvc2008.h"
@@ -114,7 +115,7 @@ typedef enum {
   if (!(expr)) {                                             \
     fprintf(stderr,                                          \
             "Assertion failed in %s on line %d: `%s %s %s` " \
-            "(%"#conv" %s %"#conv")\n",                      \
+            "(%"conv" %s %"conv")\n",                      \
             __FILE__,                                        \
             __LINE__,                                        \
             #a,                                              \
@@ -177,47 +178,19 @@ typedef enum {
 #define ASSERT_INT_BASE(a, operator, b, type, conv) \
   ASSERT_BASE(a operator b, a, operator, b, type, conv)
 
-#define ASSERT_INT_EQ(a, b) ASSERT_INT_BASE(a, ==, b, int, i)
-#define ASSERT_INT_GE(a, b) ASSERT_INT_BASE(a, >=, b, int, i)
-#define ASSERT_INT_GT(a, b) ASSERT_INT_BASE(a, >, b, int, i)
-#define ASSERT_INT_LE(a, b) ASSERT_INT_BASE(a, <=, b, int, i)
-#define ASSERT_INT_LT(a, b) ASSERT_INT_BASE(a, <, b, int, i)
-#define ASSERT_INT_NE(a, b) ASSERT_INT_BASE(a, !=, b, int, i)
+#define ASSERT_EQ(a, b) ASSERT_INT_BASE(a, ==, b, int64_t, PRId64)
+#define ASSERT_GE(a, b) ASSERT_INT_BASE(a, >=, b, int64_t, PRId64)
+#define ASSERT_GT(a, b) ASSERT_INT_BASE(a, >, b, int64_t, PRId64)
+#define ASSERT_LE(a, b) ASSERT_INT_BASE(a, <=, b, int64_t, PRId64)
+#define ASSERT_LT(a, b) ASSERT_INT_BASE(a, <, b, int64_t, PRId64)
+#define ASSERT_NE(a, b) ASSERT_INT_BASE(a, !=, b, int64_t, PRId64)
 
-#define ASSERT_UINT_EQ(a, b) ASSERT_INT_BASE(a, ==, b, unsigned int, u)
-#define ASSERT_UINT_GE(a, b) ASSERT_INT_BASE(a, >=, b, unsigned int, u)
-#define ASSERT_UINT_GT(a, b) ASSERT_INT_BASE(a, >, b, unsigned int, u)
-#define ASSERT_UINT_LE(a, b) ASSERT_INT_BASE(a, <=, b, unsigned int, u)
-#define ASSERT_UINT_LT(a, b) ASSERT_INT_BASE(a, <, b, unsigned int, u)
-#define ASSERT_UINT_NE(a, b) ASSERT_INT_BASE(a, !=, b, unsigned int, u)
-
-#define ASSERT_LONG_INT_EQ(a, b) ASSERT_INT_BASE(a, ==, b, long int, li)
-#define ASSERT_LONG_INT_GE(a, b) ASSERT_INT_BASE(a, >=, b, long int, li)
-#define ASSERT_LONG_INT_GT(a, b) ASSERT_INT_BASE(a, >, b, long int, li)
-#define ASSERT_LONG_INT_LE(a, b) ASSERT_INT_BASE(a, <=, b, long int, li)
-#define ASSERT_LONG_INT_LT(a, b) ASSERT_INT_BASE(a, <, b, long int, li)
-#define ASSERT_LONG_INT_NE(a, b) ASSERT_INT_BASE(a, !=, b, long int, li)
-
-#define ASSERT_LONG_UINT_EQ(a, b) ASSERT_INT_BASE(a, ==, b, unsigned long int, lu)
-#define ASSERT_LONG_UINT_GE(a, b) ASSERT_INT_BASE(a, >=, b, unsigned long int, lu)
-#define ASSERT_LONG_UINT_GT(a, b) ASSERT_INT_BASE(a, >, b, unsigned long int, lu)
-#define ASSERT_LONG_UINT_LE(a, b) ASSERT_INT_BASE(a, <=, b, unsigned long int, lu)
-#define ASSERT_LONG_UINT_LT(a, b) ASSERT_INT_BASE(a, <, b, unsigned long int, lu)
-#define ASSERT_LONG_UINT_NE(a, b) ASSERT_INT_BASE(a, !=, b, unsigned long int, lu)
-
-#define ASSERT_LONG_LONG_INT_EQ(a, b) ASSERT_INT_BASE(a, ==, b, long long int, lli)
-#define ASSERT_LONG_LONG_INT_GE(a, b) ASSERT_INT_BASE(a, >=, b, long long int, lli)
-#define ASSERT_LONG_LONG_INT_GT(a, b) ASSERT_INT_BASE(a, >, b, long long int, lli)
-#define ASSERT_LONG_LONG_INT_LE(a, b) ASSERT_INT_BASE(a, <=, b, long long int, lli)
-#define ASSERT_LONG_LONG_INT_LT(a, b) ASSERT_INT_BASE(a, <, b, long long int, lli)
-#define ASSERT_LONG_LONG_INT_NE(a, b) ASSERT_INT_BASE(a, !=, b, long long int, lli)
-
-#define ASSERT_LONG_LONG_UINT_EQ(a, b) ASSERT_INT_BASE(a, ==, b, unsigned long long int, llu)
-#define ASSERT_LONG_LONG_UINT_GE(a, b) ASSERT_INT_BASE(a, >=, b, unsigned long long int, llu)
-#define ASSERT_LONG_LONG_UINT_GT(a, b) ASSERT_INT_BASE(a, >, b, unsigned long long int, llu)
-#define ASSERT_LONG_LONG_UINT_LE(a, b) ASSERT_INT_BASE(a, <=, b, unsigned long long int, llu)
-#define ASSERT_LONG_LONG_UINT_LT(a, b) ASSERT_INT_BASE(a, <, b, unsigned long long int, llu)
-#define ASSERT_LONG_LONG_UINT_NE(a, b) ASSERT_INT_BASE(a, !=, b, unsigned long long int, llu)
+#define ASSERT_UINT64_EQ(a, b) ASSERT_INT_BASE(a, ==, b, uint64_t, PRIu64)
+#define ASSERT_UINT64_GE(a, b) ASSERT_INT_BASE(a, >=, b, uint64_t, PRIu64)
+#define ASSERT_UINT64_GT(a, b) ASSERT_INT_BASE(a, >, b, uint64_t, PRIu64)
+#define ASSERT_UINT64_LE(a, b) ASSERT_INT_BASE(a, <=, b, uint64_t, PRIu64)
+#define ASSERT_UINT64_LT(a, b) ASSERT_INT_BASE(a, <, b, uint64_t, PRIu64)
+#define ASSERT_UINT64_NE(a, b) ASSERT_INT_BASE(a, !=, b, uint64_t, PRIu64)
 
 #define ASSERT_STR_EQ(a, b) \
   ASSERT_BASE(strcmp(a, b) == 0, a, ==, b, s)
